@@ -3,6 +3,10 @@
 @tailwind utilities;
 
 /* Add any custom base styles here if needed */
-body {
-    @apply bg-gray-100 text-gray-700;
+body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden;
 }

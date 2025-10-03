@@ -1,81 +1,52 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useAuth } from '../../context/AuthContext';
-import * as api from '../../api/galleryService';
+import Button from '../ui/Button';
+import UploadForm from '../upload/UploadForm';
 
-const Sidebar = ({ folders = [], onSelectFolder, activeFolder, onFolderCreated }) => {
-    const { signOut, idToken } = useAuth();
-    const [newFolderName, setNewFolderName] = useState('');
-    const [isCreating, setIsCreating] = useState(false);
+const Sidebar = ({ isSidebarOpen, setSidebarOpen }) => {
+  const { currentUser, signOut } = useAuth();
 
-    const handleCreateFolder = async (e) => {
-        e.preventDefault();
-        if (!newFolderName.trim() || !idToken) return;
+  return (
+    // This container handles the sidebar's position and appearance.
+    // It's fixed on mobile and part of the layout on desktop.
+    <div 
+      className={`bg-white w-64 p-6 shadow-lg fixed md:relative h-full z-30 transform transition-transform duration-300 ease-in-out 
+                  ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}
+    >
+      <div className="flex flex-col h-full">
+        {/* User profile section */}
+        <div className="flex items-center mb-8">
+          <img 
+            src={currentUser.photoURL || 'https://via.placeholder.com/40'} 
+            alt="User" 
+            className="w-10 h-10 rounded-full mr-3"
+          />
+          <div>
+            <p className="font-semibold text-gray-800">{currentUser.displayName || 'User'}</p>
+            <p className="text-sm text-gray-500">{currentUser.email}</p>
+          </div>
+        </div>
+        
+        {/* File upload form */}
+        <UploadForm />
 
-        setIsCreating(true);
-        try {
-            await api.createFolder(newFolderName, idToken);
-            setNewFolderName('');
-            onFolderCreated(); // Notify parent to refetch folders
-        } catch (error) {
-            console.error("Error creating folder:", error);
-            alert(`Failed to create folder: ${error.message}`);
-        } finally {
-            setIsCreating(false);
-        }
-    };
+        {/* Sign out button at the bottom */}
+        <div className="mt-auto">
+          <Button onClick={signOut} className="w-full bg-red-500 hover:bg-red-600">
+            Sign Out
+          </Button>
+        </div>
+      </div>
 
-    return (
-        <aside className="flex-shrink-0 w-72 bg-white border-r border-gray-200 p-5 flex flex-col">
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-800">Albums</h2>
-                <button 
-                    onClick={signOut} 
-                    className="text-sm font-medium text-gray-600 bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded-md transition-colors"
-                >
-                    Sign Out
-                </button>
-            </div>
-
-            <ul className="flex-grow overflow-y-auto pr-2">
-                {folders.map(folder => (
-                    <li 
-                        key={folder}
-                        onClick={() => onSelectFolder(`${folder}/`)}
-                        className={`p-3 rounded-md cursor-pointer font-semibold transition mb-2 ${
-                            activeFolder === `${folder}/`
-                                ? 'bg-blue-600 text-white'
-                                : 'text-gray-700 hover:bg-gray-100'
-                        }`}
-                    >
-                        {folder}
-                    </li>
-                ))}
-            </ul>
-
-            <hr className="my-4 border-gray-200"/>
-
-            <div>
-                <h3 className="text-lg font-bold text-gray-800 mb-2">Create New Album</h3>
-                <form onSubmit={handleCreateFolder}>
-                    <input
-                        type="text"
-                        value={newFolderName}
-                        onChange={(e) => setNewFolderName(e.target.value)}
-                        placeholder="Album Name"
-                        className="w-full p-2 border border-gray-300 rounded-md mb-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                        disabled={isCreating}
-                    />
-                    <button 
-                        type="submit" 
-                        disabled={isCreating} 
-                        className="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                    >
-                        {isCreating ? 'Creating...' : 'Create'}
-                    </button>
-                </form>
-            </div>
-        </aside>
-    );
+      {/* This dark overlay appears behind the sidebar on mobile to focus attention */}
+      {isSidebarOpen && (
+        <div 
+          className="md:hidden fixed inset-0 bg-black opacity-50 z-20" 
+          onClick={() => setSidebarOpen(false)}
+        ></div>
+      )}
+    </div>
+  );
 };
 
 export default Sidebar;
