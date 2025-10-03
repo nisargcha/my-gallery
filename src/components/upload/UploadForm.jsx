@@ -26,9 +26,11 @@ const UploadForm = ({ currentFolder, onUploadComplete }) => {
             });
             await Promise.all(uploadPromises);
             setStatus('Upload complete!');
-            setFiles([]); // Clear file input
-            document.getElementById('fileInput').value = ''; // Reset the file input visually
-            onUploadComplete(); // Refresh the gallery
+            setFiles([]); 
+            document.getElementById('fileInput').value = ''; 
+            if (onUploadComplete) {
+                onUploadComplete(); // This will refresh the gallery
+            }
         } catch (error) {
             console.error("Upload failed:", error);
             setStatus(`Upload failed: ${error.message}`);
@@ -37,10 +39,13 @@ const UploadForm = ({ currentFolder, onUploadComplete }) => {
         }
     };
 
+    // This check prevents the app from crashing if currentFolder is initially undefined.
+    const folderName = currentFolder ? currentFolder.slice(0, -1) : 'root';
+
     return (
         <div className="p-6 bg-white rounded-lg shadow-lg mb-8">
             <h3 className="text-xl font-bold mb-4">
-                Upload to "<span className="text-blue-600">{currentFolder.slice(0, -1)}</span>"
+                Upload to "<span className="text-blue-600">{folderName}</span>"
             </h3>
             <div className="flex items-center space-x-4">
                 <input
