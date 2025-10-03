@@ -10,11 +10,24 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-if os.getenv('GOOGLE_APPLICATION_CREDENTIALS'):
-    cred = credentials.Certificate(os.getenv('GOOGLE_APPLICATION_CREDENTIALS'))
+gcp_credentials_base64 = os.getenv("GCP_CREDENTIALS_BASE64")
+local_credentials_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
+
+if gcp_credentials_base64:
+    decoded_credentials_str = base64.b64decode(gcp_credentials_base64).decode('utf-8')
+    credentials_json = json.loads(decoded_credentials_str)
+    cred = credentials.Certificate(credentials_json)
     firebase_admin.initialize_app(cred)
+    print("Firebase initialized from Base64 credentials.")
+
+elif local_credentials_path:
+    cred = credentials.Certificate(local_credentials_path)
+    firebase_admin.initialize_app(cred)
+    print("Firebase initialized from local file path.")
+
 else:
     firebase_admin.initialize_app()
+    print("Attempting to initialize Firebase with default credentials.")
 
 app = Flask(__name__)
 CORS(app)
