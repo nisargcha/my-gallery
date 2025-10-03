@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 gcp_credentials_base64 = os.getenv("GCP_CREDENTIALS_BASE64")
-local_credentials_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
+local_credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
 
 if gcp_credentials_base64:
     decoded_credentials_str = base64.b64decode(gcp_credentials_base64).decode('utf-8')
